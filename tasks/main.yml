@@ -1,6 +1,9 @@
 ---
 
 - name: "Build hosts file"
-  lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_ssh_host }} {{item}}" state=present
-  when: hostvars[item].ansible_ssh_host is defined
-  with_items: " {{ groups['all'] }}"
+  lineinfile: dest=/etc/hosts regexp='.*{{ item.0 }}$' line="{{ hostvars[item.0].ansible_ssh_host }} {{item.0}}" state=present
+  when: (hostvars[item.0].ansible_ssh_host is defined) and ( item.1 == "all" or ( item.1 in hostvars[item.0]['group_names']) )
+  with_nested:
+   - "{{ groups['all'] }}"
+   - "{{ host_groups }}"
+
